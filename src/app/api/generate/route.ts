@@ -7,6 +7,13 @@ import type { GenerateRequest, ScrapeListicleResult } from '@/lib/types';
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return NextResponse.json(
+      { error: 'ANTHROPIC_API_KEY is not set on the server. Please add it in Vercel → Settings → Environment Variables.' },
+      { status: 500 }
+    );
+  }
+
   let body: GenerateRequest;
   try {
     body = await request.json();
