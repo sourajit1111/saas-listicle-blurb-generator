@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { validateUrl, scrapeListicle, scrapeProduct } from '@/lib/scraper';
+import { validateUrl, scrapeListicle, scrapeProduct, getWebsiteScreenshotUrl, getProductScreenshotUrl } from '@/lib/scraper';
 import { generateBlurb } from '@/lib/claude';
 import { validateBlurb, extractMustIncludeItems } from '@/lib/validator';
 import type { GenerateRequest, ScrapeListicleResult } from '@/lib/types';
@@ -28,6 +28,7 @@ export async function POST(request: Request) {
     manualListicleEntries,
     entryNumber: requestedEntryNumber,
     userContext: rawUserContext,
+    includeScreenshot = false,
   } = body;
 
   // Validate required fields
@@ -72,6 +73,7 @@ export async function POST(request: Request) {
       entryNumberingStyle: '',
       bulletStyle: 'unknown',
       scrapeMethod: 'manual',
+      screenshotType: 'none',
     };
   } else {
     // Scrape listicle
@@ -173,8 +175,21 @@ export async function POST(request: Request) {
     }
   }
 
+  // Screenshot (optional)
+  let screenshotUrl: string | undefined;
+  const screenshotType = listicleData.screenshotType;
+  if (includeScreenshot && screenshotType !== 'none') {
+    if (screenshotType === 'product') {
+      screenshotUrl = getProductScreenshotUrl(productUrl, productData.ogImage);
+    } else {
+      screenshotUrl = getWebsiteScreenshotUrl(productUrl);
+    }
+  }
+
   return NextResponse.json({
     blurb,
     validationWarnings: allWarnings.length > 0 ? allWarnings : undefined,
+    screenshotUrl,
+    screenshotType: includeScreenshot ? screenshotType : undefined,
   });
 }

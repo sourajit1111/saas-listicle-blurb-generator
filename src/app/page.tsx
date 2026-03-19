@@ -4,11 +4,13 @@ import { useState } from 'react';
 import BlurbForm from '@/components/BlurbForm';
 import BlurbOutput from '@/components/BlurbOutput';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import type { OutputDepth } from '@/lib/types';
+import type { OutputDepth, ScreenshotType } from '@/lib/types';
 
 interface GenerateResult {
   blurb: string;
   validationWarnings?: string[];
+  screenshotUrl?: string;
+  screenshotType?: ScreenshotType;
 }
 
 export default function Home() {
@@ -24,6 +26,7 @@ export default function Home() {
     entryNumber?: number;
     userContext?: string;
     manualListicleEntries?: string;
+    includeScreenshot?: boolean;
   }) {
     setIsLoading(true);
     setResult(null);
@@ -47,7 +50,12 @@ export default function Home() {
         return;
       }
 
-      setResult({ blurb: json.blurb, validationWarnings: json.validationWarnings });
+      setResult({
+        blurb: json.blurb,
+        validationWarnings: json.validationWarnings,
+        screenshotUrl: json.screenshotUrl,
+        screenshotType: json.screenshotType,
+      });
     } catch {
       setError('Network error. Please try again.');
     } finally {
@@ -127,7 +135,12 @@ export default function Home() {
             className="mt-6 rounded-[8px] border p-6 shadow-sm"
             style={{ background: 'var(--ch-bg)', borderColor: 'var(--ch-border)' }}
           >
-            <BlurbOutput blurb={result.blurb} validationWarnings={result.validationWarnings} />
+            <BlurbOutput
+              blurb={result.blurb}
+              validationWarnings={result.validationWarnings}
+              screenshotUrl={result.screenshotUrl}
+              screenshotType={result.screenshotType}
+            />
           </div>
         )}
       </div>

@@ -1,4 +1,5 @@
 export type OutputDepth = 'short' | 'medium' | 'deep';
+export type ScreenshotType = 'website' | 'product' | 'none';
 
 export interface ListicleEntry {
   number: number;
@@ -13,6 +14,7 @@ export interface ScrapeListicleResult {
   entryNumberingStyle: string;      // e.g. "### **{n}. Name**"
   bulletStyle: 'asterisk' | 'dash' | 'unknown';
   scrapeMethod: 'heading' | 'bold-text' | 'reader-mode' | 'manual';
+  screenshotType: ScreenshotType;   // detected screenshot requirement from listicle
 }
 
 export interface ScrapeProductResult {
@@ -24,6 +26,7 @@ export interface ScrapeProductResult {
   pricing: string;
   targetAudience: string;
   rawText: string; // capped at 3000 chars
+  ogImage?: string; // OG image URL from product website (often a product screenshot)
 }
 
 export interface GenerateRequest {
@@ -33,11 +36,14 @@ export interface GenerateRequest {
   manualListicleEntries?: string; // user-pasted fallback text
   entryNumber?: number;           // optional override; auto-detected as max+1 otherwise
   userContext?: string;           // trusted user-provided emphasis/constraints, max 1500 chars
+  includeScreenshot?: boolean;    // whether to include a screenshot URL in the response
 }
 
 export interface GenerateResponse {
   blurb: string;
   validationWarnings?: string[];
+  screenshotUrl?: string;
+  screenshotType?: ScreenshotType;
   error?: string;
 }
 

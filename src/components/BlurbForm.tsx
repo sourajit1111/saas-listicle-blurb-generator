@@ -13,6 +13,7 @@ interface BlurbFormProps {
     entryNumber?: number;
     userContext?: string;
     manualListicleEntries?: string;
+    includeScreenshot?: boolean;
   }) => void;
   isLoading: boolean;
   showManualFallback: boolean;
@@ -31,6 +32,7 @@ export default function BlurbForm({ onSubmit, isLoading, showManualFallback }: B
   const [userContext, setUserContext] = useState('');
   const [manualEntries, setManualEntries] = useState('');
   const [showManual, setShowManual] = useState(showManualFallback);
+  const [includeScreenshot, setIncludeScreenshot] = useState(false);
   const [urlError, setUrlError] = useState('');
 
   function validateInputs(): boolean {
@@ -58,6 +60,7 @@ export default function BlurbForm({ onSubmit, isLoading, showManualFallback }: B
       entryNumber: entryNumber && entryNumber > 0 ? entryNumber : undefined,
       userContext: userContext.trim() || undefined,
       manualListicleEntries: showManual && manualEntries.trim() ? manualEntries.trim() : undefined,
+      includeScreenshot,
     });
   }
 
@@ -203,6 +206,23 @@ export default function BlurbForm({ onSubmit, isLoading, showManualFallback }: B
           </div>
         )}
       </div>
+
+      {/* Screenshot option */}
+      <label className="flex cursor-pointer items-center gap-2.5">
+        <input
+          type="checkbox"
+          checked={includeScreenshot}
+          onChange={(e) => setIncludeScreenshot(e.target.checked)}
+          disabled={isLoading}
+          className="h-4 w-4 rounded accent-[#042f24]"
+        />
+        <span className="text-sm" style={{ color: 'var(--ch-text)' }}>
+          Include screenshot{' '}
+          <span className="font-normal text-xs" style={{ color: 'var(--ch-text-muted)' }}>
+            (auto-detects type from listicle — website or product)
+          </span>
+        </span>
+      </label>
 
       {/* Submit */}
       <button

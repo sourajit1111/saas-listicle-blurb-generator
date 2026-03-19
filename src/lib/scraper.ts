@@ -1,7 +1,7 @@
 import * as dns from 'dns';
 import * as net from 'net';
 import { load, type CheerioAPI } from 'cheerio';
-import type { ScrapeListicleResult, ScrapeProductResult, ListicleEntry } from './types';
+import type { ScrapeListicleResult, ScrapeProductResult, ListicleEntry, ScreenshotType } from './types';
 
 const USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
@@ -237,6 +237,46 @@ function detectPattern(entries: ListicleEntry[]): string {
   return labels.join(' / ');
 }
 
+function detectScreenshotType($: CheerioAPI): ScreenshotType {
+  // Look for images inside numbered entry sections
+  const imgCount = $('img').length;
+  if (imgCount === 0) return 'none';
+
+  let websiteHints = 0;
+  let productHints = 0;
+
+  $('img').each((_, el) => {
+    const src = ($(el).attr('src') || '').toLowerCase();
+    const alt = ($(el).attr('alt') || '').toLowerCase();
+    const cls = ($(el).attr('class') || '').toLowerCase();
+
+    // Website screenshot clues
+    if (src.includes('screenshot') || alt.includes('screenshot') || alt.includes('homepage') || alt.includes('website')) {
+      websiteHints++;
+    }
+    // Product/dashboard clues
+    if (alt.includes('dashboard') || alt.includes('interface') || alt.includes('app') || alt.includes('product') || cls.includes('product')) {
+      productHints++;
+    }
+    // Wide images near entry headings likely to be screenshots
+    const width = parseInt($(el).attr('width') || '0', 10);
+    if (width > 600) websiteHints++;
+  });
+
+  // Check surrounding text for clues
+  const bodyText = $('body').text().toLowerCase();
+  if (bodyText.includes('screenshot') || bodyText.includes('homepage') || bodyText.includes('website screenshot')) {
+    websiteHints += 2;
+  }
+  if (bodyText.includes('product screenshot') || bodyText.includes('dashboard') || bodyText.includes('interface screenshot')) {
+    productHints += 2;
+  }
+
+  if (productHints > websiteHints) return 'product';
+  if (imgCount > 0) return 'website'; // default to website if images exist
+  return 'none';
+}
+
 function detectNumberingStyle(entries: ListicleEntry[]): string {
   if (entries.length === 0) return '';
   const first = entries[0].rawMarkdown.split('\n')[0];
@@ -280,6 +320,7 @@ export async function scrapeListicle(url: string): Promise<ScrapeListicleResult>
   const bulletStyle = detectBulletStyle($);
   const detectedPattern = detectPattern(entries);
   const entryNumberingStyle = detectNumberingStyle(entries);
+  const screenshotType = detectScreenshotType($);
 
   return {
     entries,
@@ -288,6 +329,7 @@ export async function scrapeListicle(url: string): Promise<ScrapeListicleResult>
     entryNumberingStyle,
     bulletStyle,
     scrapeMethod,
+    screenshotType,
   };
 }
 
@@ -335,6 +377,11 @@ export async function scrapeProduct(url: string): Promise<ScrapeProductResult> {
     .trim()
     .slice(0, PRODUCT_TEXT_CAP);
 
+  // Try to get OG image — SaaS products often use a product/dashboard screenshot
+  const ogImage = $('meta[property="og:image"]').attr('content') ||
+    $('meta[name="twitter:image"]').attr('content') ||
+    undefined;
+
   return {
     name,
     tagline,
@@ -344,5 +391,30 @@ export async function scrapeProduct(url: string): Promise<ScrapeProductResult> {
     pricing: '',
     targetAudience: '',
     rawText,
+    ogImage,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Screenshot URL helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns a URL for a website homepage screenshot (1st fold, 1280px wide).
+ * Uses thum.io — free, no API key required.
+ */
+export function getWebsiteScreenshotUrl(productUrl: string): string {
+  const encoded = encodeURIComponent(productUrl);
+  return `https://image.thum.io/get/width/1280/crop/800/noanimate/${encoded}`;
+}
+
+/**
+ * Returns the best available product screenshot URL.
+ * Prefers OG image (often a product/dashboard screenshot for SaaS).
+ * Falls back to website screenshot via thum.io.
+ */
+export function getProductScreenshotUrl(productUrl: string, ogImage?: string): string {
+  if (ogImage && ogImage.startsWith('http')) return ogImage;
+  // Fall back to website screenshot
+  return getWebsiteScreenshotUrl(productUrl);
 }
