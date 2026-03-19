@@ -404,7 +404,8 @@ export async function scrapeProduct(url: string): Promise<ScrapeProductResult> {
  * Uses thum.io — free, no API key required.
  */
 export function getWebsiteScreenshotUrl(productUrl: string): string {
-  return `https://image.thum.io/get/width/1280/crop/800/noanimate/${productUrl}`;
+  const encoded = encodeURIComponent(productUrl);
+  return `https://s0.wordpress.com/mshots/v1/${encoded}?w=1280&h=800`;
 }
 
 /**

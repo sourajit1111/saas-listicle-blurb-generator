@@ -64,7 +64,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen px-4 py-14" style={{ background: 'var(--ch-bg-secondary)' }}>
+    <main className="min-h-screen px-4 pt-8 pb-14" style={{ background: 'var(--ch-bg-secondary)' }}>
       <a
         href="https://www.youtube.com/watch?v=Hx_02aGQm38&list=RDHx_02aGQm38&start_radio=1"
         target="_blank"
@@ -74,6 +74,24 @@ export default function Home() {
       >
         🍺
       </a>
+      {/* Top bar */}
+      <div className="mb-8 flex items-center justify-center gap-1.5">
+        <span className="text-xs" style={{ color: 'var(--ch-text-muted)' }}>Powered by</span>
+        <a
+          href="https://chosenly.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center transition-opacity hover:opacity-70"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/chosenly-logo.png"
+            alt="Chosenly"
+            className="h-3.5 w-auto"
+          />
+        </a>
+      </div>
+
       <div className="mx-auto max-w-2xl">
 
         {/* Header */}

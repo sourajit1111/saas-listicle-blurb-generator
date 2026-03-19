@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import type { ScreenshotType } from '@/lib/types';
 
 interface BlurbOutputProps {
@@ -46,15 +47,28 @@ export default function BlurbOutput({ blurb, validationWarnings, screenshotUrl, 
       {/* Blurb */}
       <div>
         <label className="mb-1.5 block text-sm font-medium text-[#111]">
-          Generated blurb — raw markdown
+          Generated blurb
         </label>
-        <textarea
-          readOnly
-          value={blurb}
-          rows={Math.max(10, blurb.split('\n').length + 2)}
-          className="w-full rounded-[8px] border bg-[#f9f9f8] p-3 font-mono text-sm leading-relaxed text-[#111] focus:outline-none"
-          style={{ borderColor: 'rgba(0,0,0,0.15)', resize: 'none' }}
-        />
+        <div
+          className="w-full rounded-[8px] border bg-[#f9f9f8] p-4 text-sm leading-relaxed text-[#111]"
+          style={{ borderColor: 'rgba(0,0,0,0.15)' }}
+        >
+          <ReactMarkdown
+            components={{
+              h1: ({ children }) => <h1 className="text-base font-bold mb-1 mt-0">{children}</h1>,
+              h2: ({ children }) => <h2 className="text-base font-bold mb-1 mt-0">{children}</h2>,
+              h3: ({ children }) => <h3 className="text-base font-bold mb-1 mt-0">{children}</h3>,
+              h4: ({ children }) => <h4 className="text-sm font-bold mb-1 mt-0">{children}</h4>,
+              p: ({ children }) => <p className="mb-2 mt-0">{children}</p>,
+              ul: ({ children }) => <ul className="mb-2 mt-0 pl-4 list-disc">{children}</ul>,
+              li: ({ children }) => <li className="mb-0.5">{children}</li>,
+              a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="underline" style={{ color: 'var(--ch-green)' }}>{children}</a>,
+              strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+            }}
+          >
+            {blurb}
+          </ReactMarkdown>
+        </div>
         <button
           onClick={handleCopy}
           className="mt-3 rounded-[8px] px-4 py-2.5 text-sm font-semibold text-white transition-all active:scale-[0.97]"
@@ -62,7 +76,7 @@ export default function BlurbOutput({ blurb, validationWarnings, screenshotUrl, 
           onMouseEnter={(e) => { if (!copied) (e.currentTarget as HTMLButtonElement).style.background = 'var(--ch-orange-hover)'; }}
           onMouseLeave={(e) => { if (!copied) (e.currentTarget as HTMLButtonElement).style.background = 'var(--ch-orange)'; }}
         >
-          {copied ? 'Copied!' : 'Copy to clipboard'}
+          {copied ? 'Copied!' : 'Copy markdown'}
         </button>
       </div>
 
