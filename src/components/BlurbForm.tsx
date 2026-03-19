@@ -135,7 +135,7 @@ export default function BlurbForm({ onSubmit, isLoading, showManualFallback }: B
 
         <div>
           <label className={labelClass}>
-            Entry number{' '}
+            Listicle placement pos{' '}
             <span className="font-normal text-xs" style={{ color: 'var(--ch-text-muted)' }}>
               (optional)
             </span>
