@@ -5,9 +5,7 @@ import type {
   OutputDepth,
 } from './types';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+const anthropic = new Anthropic();
 
 const MAX_TOKENS: Record<OutputDepth, number> = {
   short: 512,
