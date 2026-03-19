@@ -66,7 +66,7 @@ export default function Home() {
   return (
     <main className="min-h-screen px-4 pt-8 pb-14" style={{ background: 'var(--ch-bg-secondary)' }}>
       <a
-        href="https://www.youtube.com/watch?v=Hx_02aGQm38&list=RDHx_02aGQm38&start_radio=1"
+        href="https://www.youtube.com/watch?v=d-hT2ecfNYQ&list=RDd-hT2ecfNYQ&start_radio=1"
         target="_blank"
         rel="noopener noreferrer"
         className="fixed top-4 right-4 text-2xl leading-none transition-transform hover:scale-110 active:scale-95"
