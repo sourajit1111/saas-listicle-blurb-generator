@@ -25,7 +25,8 @@ export async function generateBlurb(
   depth: OutputDepth,
   userContext: string,
   entryNumber: number | string,
-  repairHints?: string[]
+  repairHints?: string[],
+  productUrl?: string
 ): Promise<string> {
   const examplesBlock = listicle.entries.length > 0
     ? listicle.entries
@@ -34,8 +35,9 @@ export async function generateBlurb(
     : listicle.rawFallbackChunk;
 
   const productBlock = [
-    `Product Name: ${product.name}`,
-    `Tagline: ${product.tagline}`,
+    `Product URL: ${productUrl || '(unknown)'}`,
+    `Product Name: ${product.name || '(could not scrape — infer from URL)'}`,
+    `Tagline: ${product.tagline || '(could not scrape)'}`,
     product.features.length > 0
       ? `Key Features:\n${product.features.map((f) => `- ${f}`).join('\n')}`
       : '',
@@ -93,9 +95,9 @@ ${repairBlock}
 INSTRUCTIONS:
 1. Generate entry #${entryNumber} for ${product.name} that matches the EXACT format of the examples in <listicle_examples>. Mimic heading depth, sub-section labels, bullet character, and entry length.
 2. Do NOT copy exact sentences from the examples. Paraphrase; mimic structure and tone only.
-3. Use only factual claims that can be reasonably inferred from <product_data>.
+3. Use factual claims from <product_data>. If product data is sparse or empty, infer the product name from the URL domain, and use [square bracket placeholders] for specific claims you cannot verify (e.g. "[key feature]", "[pricing]"). Never refuse to generate — always produce a complete entry.
 4. Output depth: ${depth} — ${DEPTH_INSTRUCTIONS[depth]}
-5. If <user_context> specifies must-include features, emphasis, or constraints, prioritize them as long as they fit the listicle's format and are consistent with <product_data>. Do not invent facts that are not in <product_data> or <user_context>.
+5. If <user_context> specifies must-include features, emphasis, or constraints, prioritize them as long as they fit the listicle's format. They take precedence over sparse <product_data>.
 6. Output ONLY the blurb. No preamble, explanation, or meta-commentary.`;
 
   const message = await anthropic.messages.create({

@@ -135,7 +135,7 @@ export async function POST(request: Request) {
   // Generate blurb
   let blurb: string;
   try {
-    blurb = await generateBlurb(listicleData, productData, depth, userContext, entryNumber);
+    blurb = await generateBlurb(listicleData, productData, depth, userContext, entryNumber, undefined, productUrl);
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
     return NextResponse.json(
@@ -157,7 +157,8 @@ export async function POST(request: Request) {
         depth,
         userContext,
         entryNumber,
-        validationResult.failures
+        validationResult.failures,
+        productUrl
       );
       blurb = repairedBlurb;
       allWarnings.push(...validationResult.failures.map((f) => `Auto-corrected: ${f}`));
